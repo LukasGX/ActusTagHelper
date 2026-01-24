@@ -58,7 +58,10 @@ def conv(xml_filename):
             else: continue
 
             # title
-            title = mtd.find("titel").text
+            try:
+                title = mtd.find("titel").text
+            except:
+                continue
 
             # content
             contentlines = ttd.findall(".//P")
@@ -108,6 +111,39 @@ def fill_offenses(json_filename):
 
                     json_content["laws"][i]["offenses"] = offenses
                 elif char == "x":
-                    # save
+                    with open(json_path, "w", encoding="utf-8") as f:
+                        f.write(json.dumps(json_content, indent=4))
+                    print("Closed")
+                    return
+
+def fill_consequences(json_filename):
+    script_dir = Path(__file__).parent
+    json_path = script_dir / f"{json_filename}.json"
+
+    if json_path.exists() and json_path.is_file() and json_path.suffix.lower() == '.json':
+        with open(json_path, "r", encoding="utf-8") as f:
+            content = f.read()
+            json_content = json.loads(content)
+
+        for i, law in enumerate(json_content["laws"]):
+            if law.get("consequences") == []:
+                consequences = []
+                print(Fore.YELLOW + f"Choose mode for this law ({law.get("name")}):" + Fore.RESET)
+                print(Fore.LIGHTBLUE_EX + "\"" + law.get("content") + "\"" + Fore.RESET)
+                print(Fore.YELLOW + "s=Skip, m=Input manually, x=Save and close" + Fore.RESET)
+                char = getch()
+                if char == "s":
+                    continue
+                elif char == "m":
+                    print(Fore.YELLOW + "Type every consequence (QUIT if you're finished)" + Fore.RESET)
+                    while True:
+                        consequence = input(">> ")
+                        if consequence == "QUIT": break
+                        else: consequences.append(consequence)
+
+                    json_content["laws"][i]["consequences"] = consequences
+                elif char == "x":
+                    with open(json_path, "w", encoding="utf-8") as f:
+                        f.write(json.dumps(json_content, indent=4))
                     print("Closed")
                     return

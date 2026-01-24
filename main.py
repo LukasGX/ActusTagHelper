@@ -19,6 +19,7 @@ def main():
 {Fore.YELLOW}Commands:{Fore.RESET}
     - {Fore.YELLOW}conv{Fore.RESET} Convert xml from gesetze-im-internet.de to ActusTag json
     - {Fore.YELLOW}off{Fore.RESET} Fill ActusTag json with offenses (guided)
+    - {Fore.YELLOW}con{Fore.RESET} Fill ActusTag json with consequences (guided)
     - {Fore.YELLOW}exit{Fore.RESET} / {Fore.YELLOW}x{Fore.RESET} Get me out of here
 """)
     
@@ -32,6 +33,10 @@ def main():
             print("Name of the json file to fill with offenses")
             filename = input(">> ")
             conv.fill_offenses(filename)
+        elif command == "con":
+            print("Name of the json file to fill with consequences")
+            filename = input(">> ")
+            conv.fill_consequences(filename)
         elif command == "exit" or command == "x":
             break
         else:

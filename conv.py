@@ -62,10 +62,42 @@ def conv(xml_filename):
                 title = mtd.find("titel").text
             except:
                 continue
-
+            
             # content
-            contentlines = ttd.findall(".//P")
-            content = "\n".join(line.text or "" for line in contentlines)
+            content_el = ttd.find(".//Content")
+            if content_el is not None:
+                contentlines = content_el.findall("P")
+            else:
+                content = ""
+                continue
+
+            content = ""
+            for line in contentlines:
+                dl = line.find("DL")
+                
+                # 1. P-Text IMMER zuerst
+                if line.text:
+                    content += line.text.strip() + "\n"
+                
+                # 2. DL-Inhalt NUR bei DL
+                if dl is not None:
+                    output = ""
+                    dl_children = list(dl)
+                    i = 0
+                    while i < len(dl_children):
+                        child = dl_children[i]
+                        if child.tag == "DT" and child.text:
+                            output += child.text.strip()
+                            if i+1 < len(dl_children) and dl_children[i+1].tag == "DD":
+                                dd = dl_children[i+1]
+                                la = dd.find("LA")
+                                if la is not None and la.text:
+                                    output += " " + la.text.strip() + "\n"
+                        i += 1
+                    
+                    if output:  # ← NUR output hinzufügen!
+                        content += output
+                
 
             laws.append({
                 "name": clean_name,

@@ -46,20 +46,28 @@ def conv(xml_filename):
             if enbez == None: continue
 
             # name
-            name = enbez.text
-            pattern = r'^§(.*)|^\(XXXX\)\s*§§(.*)'
-            
-            match = re.match(pattern, name.strip())
+            name = enbez.text.strip()
+            pattern = r'^(§.*)|^\(XXXX\)\s*§§(.*)|^Art\s*(\d+[a-zA-Z]?)'
+
+            match = re.match(pattern, name)
             if match:
-                content = match.group(1) or match.group(2)
-                
-                if match.group(1): clean_name = f"§{content.strip()}"
-                else: clean_name = f"§§{content.strip()}"
-            else: continue
+                if match.group(1):
+                    content = match.group(1).lstrip('§').strip()
+                    clean_name = f"§{content}"
+                elif match.group(2):
+                    content = match.group(2).strip()
+                    clean_name = f"§§{content}"
+                elif match.group(3):
+                    content = match.group(3).strip()
+                    clean_name = f"Art {content}"
+                else:
+                    continue
+            else:
+                continue
 
             # title
             try:
-                title = mtd.find("titel").text
+                title = mtd.findtext("titel", clean_name)
             except:
                 continue
             

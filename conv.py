@@ -3,6 +3,7 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 import json
 import re
+from bs4 import BeautifulSoup
 
 import sys
 import termios
@@ -123,6 +124,54 @@ def conv(xml_filename):
             }, indent=4))
     else:
         print(Fore.RED + "Error: File not found or not valid xml" + Fore.RESET)
+
+def conv_bay(html_filename):
+    script_dir = Path(__file__).parent
+    html_path = script_dir / f"{html_filename}.html"
+    json_path = script_dir / f"{html_filename}.json"
+
+    if html_path.exists() and html_path.is_file() and html_path.suffix.lower() == '.html':
+        with open(html_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        soup = BeautifulSoup(content, "html.parser")
+        print(Fore.GREEN + "HTML loaded successfully" + Fore.RESET)
+
+        laws = []
+        for cont in soup.find_all("div", class_="cont"):
+            title_el = cont.find("div", class_="paranr")
+            if title_el is None:
+                continue
+
+            content_els = cont.find_all("div", class_="paratext")
+            if not content_els:
+                continue
+
+            for ce in content_els:
+                for sup in ce.find_all("sup"):
+                    sup.decompose()
+
+            name = title_el.get_text(strip=True)
+
+            content_lines = [ce.get_text(strip=False).strip().replace("\t", "").replace("\n", " ") for ce in content_els]
+            content = "\n".join(content_lines).strip()
+
+            laws.append({
+                "name": name,
+                "title": name,
+                "content": content,
+                "offenses": [],
+                "consequences": []
+            })
+
+        # JSON speichern
+        with open(json_path, "w", encoding="utf-8") as f:
+            f.write(json.dumps({
+                "abbr": "",  # kannst du später anpassen, falls du Meta-Infos hast
+                "name": "",  # z.B. "Verfassung des Freistaates Bayern"
+                "laws": laws
+            }, indent=4, ensure_ascii=False))
+    else:
+        print(Fore.RED + "Error: File not found or not valid html" + Fore.RESET)
 
 def fill_offenses(json_filename):
     script_dir = Path(__file__).parent

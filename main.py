@@ -18,6 +18,7 @@ def main():
     print(f"""
 {Fore.YELLOW}Commands:{Fore.RESET}
     - {Fore.YELLOW}conv{Fore.RESET} Convert xml from gesetze-im-internet.de to ActusTag json
+    - {Fore.YELLOW}bayconv{Fore.RESET} Convert html from gesetze-bayern.de to ActusTag json
     - {Fore.YELLOW}off{Fore.RESET} Fill ActusTag json with offenses (guided)
     - {Fore.YELLOW}con{Fore.RESET} Fill ActusTag json with consequences (guided)
     - {Fore.YELLOW}exit{Fore.RESET} / {Fore.YELLOW}x{Fore.RESET} Get me out of here
@@ -29,6 +30,10 @@ def main():
             print("Name of the xml file to convert")
             filename = input(">> ")
             conv.conv(filename)
+        elif command == "bayconv":
+            print("Name of the html file to convert")
+            filename = input(">> ")
+            conv.conv_bay(filename)
         elif command == "off":
             print("Name of the json file to fill with offenses")
             filename = input(">> ")
